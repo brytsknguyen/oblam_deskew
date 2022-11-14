@@ -1,0 +1,29 @@
+<launch>
+
+    <arg name="pose_bag_file"  default="/home/tmn/dev_ws/src/oblam_deskew/data/newer_college_06_pose_gt_.bag"/>
+    <arg name="data_bag_file"  default="/home/tmn/dev_ws/src/oblam_deskew/data/06_dynamic_spinning_ouster_.bag"/>
+
+    <!-- Launch the imu fusion node -->
+    <node pkg="robot_localization" type="ekf_localization_node" output="log" name="ekf_se" clear_params="true">
+        <rosparam command="load" file="$(find oblam_deskew)/launch/ekf_config.yaml" />       
+    </node>
+
+    <!-- Launch the deskew node -->
+    <node pkg="oblam_deskew" type="oblam_deskew_node" name="oblam_deskew" required="true" output="screen"/>
+
+    <!-- Launch rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" required="true" output="log" args="-d $(find oblam_deskew)/launch/deskew.rviz"/>
+
+    <!-- Launch the pose file -->
+    <node required="false" pkg="rosbag" type="play" name="rosbag_pose_player"
+          args="--clock $(arg pose_bag_file) -r 1.0" launch-prefix="bash -c 'sleep 1; $0 $@' "/>
+    
+    <!-- Launch the pointcloud file -->
+    <node required="false" pkg="rosbag" type="play" name="rosbag_data_player"
+          args="$(arg data_bag_file) -r 1.0" launch-prefix="bash -c 'sleep 1; $0 $@' "/>
+
+    <!-- Add a static transform between imu and lidar -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_osimu_osslidar" args="-0.006253 0.011775 0.028535 0 0 1 0 os1_imu os1_lidar" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_world_worldshifted" args="75 0 0 0 0 0 1 world world_shifted" />
+
+</launch>
