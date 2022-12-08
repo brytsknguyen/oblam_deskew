@@ -1,6 +1,10 @@
 # OBLAM Assignment: Deskewing lidar scan with IMU propagated states
 <!-- via Continuous-time Optimization -->
 
+# Course page
+
+The course materials and instructions can be found at [KTH Canvas](https://canvas.kth.se/courses/40649) .
+
 # Prerequisite
 
 The software was developed on the following dependancies
